@@ -54,11 +54,25 @@ img.newNote {
 }
 
 .noteHistoryEntry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 0;
   list-style: none;
   width: 100%;
 }
-.noteHistoryEntry:hover {
+
+.noteHistoryEntry > div:hover {
+  background-color: rgb(214, 214, 214);
+  cursor: pointer;
+}
+
+.noteHistoryEntry > .delete {
+  width: 30px;
+}
+
+.noteHistoryEntry > .delete:hover {
   background-color: rgb(214, 214, 214);
   cursor: pointer;
 }
