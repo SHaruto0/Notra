@@ -9,4 +9,37 @@ interface Note {
   updatedAt: number;
 }
 
-type EventPayloadMapping = {};
+type EventPayloadMapping = {
+  getAllNotes: {
+    args: [];
+    return: Note[];
+  };
+
+  createNote: {
+    args: [];
+    return: Note;
+  };
+
+  updateNote: {
+    args: [{ id: string; title: string; content: string }];
+    return: Note;
+  };
+
+  deleteNote: {
+    args: [id: string];
+    return: Note;
+  };
+};
+
+interface Window {
+  db: {
+    getAllNotes: () => Promise<Note[]>;
+    createNote: () => Promise<Note>;
+    updateNote: (params: {
+      id: string;
+      title: string;
+      content: string;
+    }) => Promise<Note>;
+    deleteNote: (id: string) => Promise<Note>;
+  };
+}
