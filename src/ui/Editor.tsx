@@ -1,16 +1,56 @@
 import { useParams } from "react-router-dom";
 import "./Editor.css";
+import type React from "react";
+import { useEffect, useState } from "react";
 
-function Editor() {
-  const { noteId } = useParams();
+function Editor({
+  notes,
+  setNotes,
+}: {
+  notes: Note[];
+  setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
+}) {
+  const { noteId } = useParams<{ noteId: string }>();
+  const note = notes.find((note) => note.id === noteId);
 
-  const fakeNotes: Note[] = [
-    { id: "1", title: "A", content: "Hello A", updatedAt: 1 },
-    { id: "2", title: "B", content: "Hello B", updatedAt: 1 },
-    { id: "3", title: "C", content: "Hello C", updatedAt: 1 },
-  ];
+  const [title, setTitle] = useState(note?.title || "");
+  const [content, setContent] = useState(note?.content || "");
 
-  const note = fakeNotes.find((note) => note.id === noteId);
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+    } else {
+      setTitle("");
+      setContent("");
+    }
+  }, [note]);
+
+  useEffect(() => {
+    if (!noteId || !note) return;
+
+    // Only save if title or content actually changed
+    if (title === note.title && content === note.content) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        const updatedNote: Note = await window.db.updateNote({
+          id: noteId,
+          title,
+          content,
+        });
+
+        setNotes((prevNotes) => {
+          const filteredNotes = prevNotes.filter((note) => note.id !== noteId);
+          return [updatedNote, ...filteredNotes];
+        });
+      } catch (err) {
+        console.error("Failed to update note:", err);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [title, content, noteId, setNotes]);
 
   if (!note) {
     return <div>Note not found</div>;
@@ -18,14 +58,23 @@ function Editor() {
 
   return (
     <div className="content">
-      <input className="title " type="text" name="title" value={note.title} />
-      <textarea className="body" name="body" value={note.content} />
+      <input
+        className="title "
+        type="text"
+        name="title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <textarea
+        className="body"
+        name="body"
+        value={content}
+        onChange={(e) => {
+          setContent(e.target.value);
+        }}
+      />
     </div>
   );
-  {
-    /* Title: {note.title} <br />
-  Content: {note.content} */
-  }
 }
 
 export default Editor;
