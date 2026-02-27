@@ -17,7 +17,7 @@ export class SQLiteDatabase {
     this.db
       .prepare(
         `
-    CREATE TABLE IF NOT EXISTS notes (
+        CREATE TABLE IF NOT EXISTS notes (
         id TEXT PRIMARY KEY,
         title TEXT,
         content TEXT,
@@ -53,7 +53,15 @@ export class SQLiteDatabase {
     return note;
   }
 
-  updateNote(id: string, title: string, content: string): Note {
+  updateNote({
+    id,
+    title,
+    content,
+  }: {
+    id: string;
+    title: string;
+    content: string;
+  }): Note {
     const note: Note = {
       id,
       title,
@@ -78,5 +86,10 @@ export class SQLiteDatabase {
     del.run(id);
 
     return note;
+  }
+
+  close(): void {
+    this.db.close();
+    console.log("SQLite Database Closed.");
   }
 }
