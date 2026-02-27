@@ -21,7 +21,7 @@ export class SQLiteDatabase {
         id TEXT PRIMARY KEY,
         title TEXT,
         content TEXT,
-        updatedAt INTEGER
+        updatedAt INTEGER NOT NULL
     )
     `,
       )
