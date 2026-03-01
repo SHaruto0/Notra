@@ -4,7 +4,7 @@ import { logger } from "./middleware/logger.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 import noteRoutes from "./routes/notes.routes.js";
-import { corsOptions } from "./controllers/corsOptions.js";
+import { corsOptions } from "./config/corsOptions.js";
 
 const PORT = 3000;
 const app = express();
