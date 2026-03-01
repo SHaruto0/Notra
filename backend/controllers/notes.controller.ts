@@ -38,6 +38,7 @@ export const createNote = asyncHandler(async (req: Request, res: Response) => {
   const { data: note, error } = await supabase
     .from("notes")
     .insert(newNote)
+    .select()
     .single();
 
   if (error) {
@@ -90,7 +91,9 @@ export const deleteNote = asyncHandler(async (req: Request, res: Response) => {
   const { data: note, error } = await supabase
     .from("notes")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) {
     return res.status(500).json({ message: error.message });
