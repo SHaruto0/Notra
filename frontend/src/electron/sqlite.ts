@@ -37,6 +37,14 @@ export class SQLiteDatabase {
     return notes;
   }
 
+  getNote(id: string): Note | undefined {
+    const getNote = this.db.prepare("SELECT * FROM notes WHERE id = ?");
+
+    const note: Note | undefined = getNote.get(id);
+
+    return note;
+  }
+
   createNote(): Note {
     const note: Note = {
       id: uuidv4(),
@@ -88,8 +96,34 @@ export class SQLiteDatabase {
     return note;
   }
 
+  setNote({ id, title, content, updatedAt }: Note): void {
+    const note: Note | undefined = this.getNote(id);
+
+    if (note) {
+      if (
+        !(
+          note.title === title &&
+          note.content === content &&
+          note.updatedAt === updatedAt
+        )
+      ) {
+        const set = this.db.prepare(
+          "UPDATE notes SET title = ?, content = ?, updatedAt = ? WHERE id = ?",
+        );
+        set.run(title, content, updatedAt, id);
+      }
+    } else {
+      const insert = this.db.prepare(
+        "INSERT INTO notes (id, title, content, updatedAt) VALUES (?, ?, ?, ?)",
+      );
+      insert.run(id, title, content, updatedAt);
+    }
+  }
+
   close(): void {
     this.db.close();
     console.log("SQLite Database Closed.");
   }
 }
+
+export const db = new SQLiteDatabase();

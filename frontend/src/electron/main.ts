@@ -1,11 +1,10 @@
-import { app, BrowserWindow } from "electron";
 import path from "path";
+import { app, BrowserWindow } from "electron";
+
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
-import { SQLiteDatabase } from "./sqlite.js";
+import { db, SQLiteDatabase } from "./sqlite.js";
 import { setUpSQLiteHandler } from "./ipcHandlers.js";
-
-let db: SQLiteDatabase;
 
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
@@ -18,8 +17,6 @@ app.on("ready", () => {
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
-
-  db = new SQLiteDatabase();
 
   setUpSQLiteHandler(db);
 });

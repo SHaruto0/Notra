@@ -10,7 +10,9 @@ export function ipcMainHandle<Key extends keyof EventPayloadMapping>(
   key: Key,
   handler: (
     ...args: EventPayloadMapping[Key]["args"]
-  ) => EventPayloadMapping[Key]["return"],
+  ) =>
+    | EventPayloadMapping[Key]["return"]
+    | Promise<EventPayloadMapping[Key]["return"]>,
 ) {
   ipcMain.handle(key, (event, ...args: EventPayloadMapping[Key]["args"]) => {
     console.log(key);
