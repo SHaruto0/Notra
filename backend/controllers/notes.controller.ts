@@ -23,18 +23,20 @@ export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
 // @route POST /notes
 // @access Private
 export const createNote = asyncHandler(async (req: Request, res: Response) => {
-  const { id, updatedAt } = req.body;
+  const { id, title, content, updatedAt } = req.body;
 
-  if (!id || !updatedAt) {
+  if (!id || title === undefined || content === undefined || !updatedAt) {
     return res
       .status(400)
-      .json({ message: "id and updatedAt fields are required" });
+      .json({
+        message: "id, title, content, and updatedAt fields are required",
+      });
   }
 
   const newNote: Note = {
     id,
-    title: "",
-    content: "",
+    title,
+    content,
     updatedAt,
   };
   const { data: note, error } = await supabase
