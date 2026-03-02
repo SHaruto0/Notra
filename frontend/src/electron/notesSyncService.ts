@@ -1,23 +1,37 @@
 import { db, SQLiteDatabase } from "./sqlite.js";
+import { noteActions } from "./util.js";
 
 export const getAllNotes = async (): Promise<Note[]> => {
-  const response = await fetch("http://localhost:3000/notes", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const data = await noteActions("GET");
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(`Get request failed: ${response.status} - ${data.message}`);
+  if (!data) {
+    return db.getAllNotes();
   }
 
-  const notes: Note[] = data.notes;
+  const remoteNotes: Note[] = data.notes;
+  const localNotes: Note[] = db.getAllNotes();
 
-  for (const note of notes) {
-    db.setNote(note);
+  const remoteMap = new Map(remoteNotes.map((n) => [n.id, n]));
+  const localMap = new Map(localNotes.map((n) => [n.id, n]));
+
+  const allIds = new Set([...remoteMap.keys(), ...localMap.keys()]);
+
+  for (const id of allIds) {
+    const remote = remoteMap.get(id);
+    const local = localMap.get(id);
+
+    if (local && !remote) {
+      console.log(local);
+      await noteActions("POST", local);
+    } else if (!local && remote) {
+      db.setNote(remote);
+    } else {
+      if (local!.updatedAt > remote!.updatedAt) {
+        await noteActions("PATCH", local);
+      } else if (remote!.updatedAt > local!.updatedAt) {
+        db.setNote(remote!);
+      }
+    }
   }
 
   return db.getAllNotes();
@@ -26,25 +40,7 @@ export const getAllNotes = async (): Promise<Note[]> => {
 export const createNote = async (): Promise<Note> => {
   const note: Note = db.createNote();
 
-  const payload = {
-    id: note.id,
-    updatedAt: note.updatedAt,
-  };
-
-  const response = await fetch("http://localhost:3000/notes", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      `Create request failed: ${response.status} - ${errorData.message}`,
-    );
-  }
+  const data = await noteActions("POST", note);
 
   return note;
 };
@@ -55,24 +51,8 @@ export const updateNote = async (params: {
   content: string;
 }): Promise<Note> => {
   const note = db.updateNote(params);
-  console.log("HI");
-  console.log(JSON.stringify(note));
 
-  const response = await fetch("http://localhost:3000/notes", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(note),
-  });
-  console.log("hello");
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      `Update request failed: ${response.status} - ${errorData.message}`,
-    );
-  }
+  const data = await noteActions("PATCH", note);
 
   return note;
 };
@@ -80,22 +60,7 @@ export const updateNote = async (params: {
 export const deleteNote = async (id: string): Promise<Note> => {
   const note = db.deleteNote(id);
 
-  const response = await fetch("http://localhost:3000/notes", {
-    method: "DELETE",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify({
-      id,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(
-      `Delete request failed: ${response.status} - ${errorData.message}`,
-    );
-  }
+  const data = await noteActions("DELETE", { id });
 
   return note;
 };
