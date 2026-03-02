@@ -26,7 +26,9 @@ export const createNote = asyncHandler(async (req: Request, res: Response) => {
   const { id, updatedAt } = req.body;
 
   if (!id || !updatedAt) {
-    return res.status(400).json({ message: "id and updatedAt are required" });
+    return res
+      .status(400)
+      .json({ message: "id and updatedAt fields are required" });
   }
 
   const newNote: Note = {
@@ -54,10 +56,10 @@ export const createNote = asyncHandler(async (req: Request, res: Response) => {
 export const updateNote = asyncHandler(async (req: Request, res: Response) => {
   const { id, title, content, updatedAt } = req.body;
 
-  if (!id || !title || !content || !updatedAt) {
-    return res
-      .status(400)
-      .json({ message: "id, title, content, and updatedAt are required" });
+  if (!id || title === undefined || content === undefined || !updatedAt) {
+    return res.status(400).json({
+      message: "id, title, content, and updatedAt fields are required",
+    });
   }
 
   const { data: note, error } = await supabase
@@ -85,7 +87,7 @@ export const deleteNote = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.body;
 
   if (!id) {
-    return res.status(400).json({ message: "id is required" });
+    return res.status(400).json({ message: "id field is required" });
   }
 
   const { data: note, error } = await supabase
