@@ -1,6 +1,7 @@
 import { ipcMain, WebFrameMain } from "electron";
 import { pathToFileURL } from "url";
 import { getUIPath } from "./pathResolver.js";
+import { exitCode } from "process";
 
 export function isDev(): boolean {
   return process.env.NODE_ENV === "development";
@@ -30,5 +31,45 @@ export function validateEventFrame(frame: WebFrameMain) {
   }
   if (frame.url !== pathToFileURL(getUIPath()).toString()) {
     throw new Error("Malicious event");
+  }
+}
+
+export async function noteActions(method: string, payload?: any) {
+  if (!["GET", "POST", "PATCH", "DELETE"].includes(method)) {
+    return undefined;
+  }
+
+  try {
+    let response;
+
+    if (method === "GET") {
+      response = await fetch("http://localhost:3000/notes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } else {
+      response = await fetch("http://localhost:3000/notes", {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `${method} request failed: ${response.status} - ${data.message}`,
+      );
+    }
+
+    return data;
+  } catch (err) {
+    console.error(err);
+    return undefined;
   }
 }
