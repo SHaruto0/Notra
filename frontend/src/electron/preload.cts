@@ -7,6 +7,11 @@ contextBridge.exposeInMainWorld("db", {
   deleteNote: (id) => ipcInvoke("deleteNote", id),
 } satisfies Window["db"]);
 
+contextBridge.exposeInMainWorld("auth", {
+  login: (params) => ipcInvoke("login", params),
+  register: (params) => ipcInvoke("register", params),
+} satisfies Window["auth"]);
+
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
   key: Key,
   ...args: EventPayloadMapping[Key]["args"]

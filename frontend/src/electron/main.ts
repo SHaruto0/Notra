@@ -4,7 +4,7 @@ import { app, BrowserWindow } from "electron";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
 import { db, SQLiteDatabase } from "./sqlite.js";
-import { setUpSQLiteHandler } from "./ipcHandlers.js";
+import { setUpAuthHandler, setUpSQLiteHandler } from "./ipcHandlers.js";
 
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
@@ -19,6 +19,7 @@ app.on("ready", () => {
   }
 
   setUpSQLiteHandler(db);
+  setUpAuthHandler();
 });
 
 app.on("window-all-closed", () => {
