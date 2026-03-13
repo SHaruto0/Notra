@@ -1,34 +1,26 @@
-import SideBar from "./SideBar";
 import { Route, Routes } from "react-router-dom";
+
 import "./App.css";
-import Editor from "./Editor";
-import { useEffect, useState } from "react";
+
+import Layout from "./routes/Layout";
+import Login from "./components/Login";
+import Editor from "./components/Editor";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
-  const [notes, setNotes] = useState<Note[]>([]);
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      const data: Note[] = await window.db.getAllNotes();
-      setNotes(data);
-    };
-
-    fetchNotes();
-  }, []);
-
   return (
-    <div style={{ display: "flex" }}>
-      <SideBar notes={notes} setNotes={setNotes} />
-      <div style={{ flex: 1, padding: "1rem" }}>
-        <Routes>
-          <Route path="/" element={<div>Select a note</div>} />
-          <Route
-            path="/notes/:noteId"
-            element={<Editor notes={notes} setNotes={setNotes} />}
-          />
-        </Routes>
-      </div>
-    </div>
+    <Routes>
+      {/* <Route path="/login" element={<Login />} /> */}
+
+      {/* <Route element={<ProtectedRoute />}> */}
+      <Route path="/" element={<Layout />}>
+        <Route path="/" element={<div>Select a note</div>} />
+        <Route path="/notes/:noteId" element={<Editor />} />
+      </Route>
+      {/* </Route> */}
+
+      <Route path="/login" element={<Login />} />
+    </Routes>
   );
 }
 
