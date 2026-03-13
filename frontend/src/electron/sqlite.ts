@@ -10,20 +10,28 @@ export class SQLiteDatabase {
     const dbPath = path.join(app.getPath("userData"), "notes.db");
     this.db = new Database(dbPath);
     this.db.pragma("journal_mode = WAL");
+    this.db.pragma("foreign_keys = ON");
     this.prepareDB();
   }
 
   prepareDB() {
     this.db
       .prepare(
-        `
-        CREATE TABLE IF NOT EXISTS notes (
+        `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
+        username TEXT,
+        password TEXT)`,
+      )
+      .run();
+    this.db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS notes (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         title TEXT,
         content TEXT,
-        updatedAt INTEGER NOT NULL
-    )
-    `,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE)`,
       )
       .run();
   }
