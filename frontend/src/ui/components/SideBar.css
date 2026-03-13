@@ -1,0 +1,84 @@
+.sideBar {
+  background-color: white;
+  /* position: absolute;
+  top: 0;
+  left: 0; */
+  padding: 1.5rem 0 0 1rem;
+  width: 13rem;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+img.logo {
+  width: 25px;
+  height: auto;
+}
+
+h2.title {
+  font-size: 2rem;
+  color: black;
+  padding: 0 0 0 1rem;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding: 1rem 0 0 0;
+}
+
+img.newNote {
+  width: 30px;
+  height: auto;
+}
+
+.noteHistory {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+}
+
+.noteHistoryList {
+  width: 100%;
+  overflow-y: auto;
+  height: calc(100vh - 200px);
+  scrollbar-gutter: stable;
+}
+
+.noteHistoryEntry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  list-style: none;
+  width: 100%;
+}
+
+.noteHistoryEntry > div:hover {
+  background-color: rgb(214, 214, 214);
+  cursor: pointer;
+}
+
+.noteHistoryEntry > .delete {
+  width: 30px;
+}
+
+.noteHistoryEntry > .delete:hover {
+  background-color: rgb(214, 214, 214);
+  cursor: pointer;
+}
+
+.login-button {
+  cursor: pointer;
+  margin: 1rem 0rem;
+}
