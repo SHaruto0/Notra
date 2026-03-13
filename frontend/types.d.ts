@@ -9,6 +9,11 @@ interface Note {
   updatedAt: number;
 }
 
+interface AuthType {
+  username: string;
+  password: string;
+}
+
 type EventPayloadMapping = {
   getAllNotes: {
     args: [];
@@ -29,6 +34,16 @@ type EventPayloadMapping = {
     args: [id: string];
     return: Note;
   };
+
+  login: {
+    args: [AuthType];
+    return: void;
+  };
+
+  register: {
+    args: [AuthType];
+    return: boolean;
+  };
 };
 
 interface Window {
@@ -41,5 +56,9 @@ interface Window {
       content: string;
     }) => Promise<Note>;
     deleteNote: (id: string) => Promise<Note>;
+  };
+  auth: {
+    login: (params: AuthType) => void;
+    register: (params: AuthType) => Promise<boolean>;
   };
 }
