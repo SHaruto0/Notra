@@ -6,6 +6,7 @@
     "dev": "nodemon --watch './**/*.ts' --exec 'tsc && node dist/server.js'"
   },
   "devDependencies": {
+    "@types/argon2": "^0.14.1",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -19,6 +20,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
+    "argon2": "^0.44.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

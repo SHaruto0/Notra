@@ -18,6 +18,7 @@ app.use(express.json());
 
 app.use("/notes", noteRoutes);
 app.use("/auth", authRoutes);
+app.use("/health", (_, res) => res.sendStatus(200));
 
 app.use(errorHandler);
 
