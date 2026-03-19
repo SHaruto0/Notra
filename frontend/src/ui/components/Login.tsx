@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import "./Login.css";
+import { useAuth } from "../hooks/useAuth";
 
 function Login() {
   const [tab, setTab] = useState<"login" | "register">("login");
@@ -11,35 +12,62 @@ function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
+  const { setIsAuthenticated } = useAuth();
+
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      // await window.db.login(username, password);
-      navigate("/");
-    } catch (err) {
-      setError("Invalid username or password");
+
+    if (!username.trim() || !password.trim()) {
+      setError("Please enter Username and/or Password");
+      return;
     }
+
+    const response: ResponseMessageType = await window.auth.login({
+      username,
+      password,
+    });
+
+    if (!response.success) {
+      setError(response.message);
+      return;
+    }
+
+    setIsAuthenticated(true);
+    navigate("/");
   };
 
   const handleRegister = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      if (password !== confirmPassword) {
-        throw Error("Password needs to match");
-      }
-      const isOnline = await window.auth.register({ username, password });
-      console.log(isOnline);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong");
-      }
+
+    if (username.includes(" ")) {
+      setError("Username cannot contain spaces");
+      return;
     }
+    if (!password.trim()) {
+      setError("Password needs to be non empty");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Password needs to match");
+      return;
+    }
+
+    const response: ResponseMessageType = await window.auth.register({
+      username,
+      password,
+    });
+
+    if (!response.success) {
+      setError(response.message);
+      return;
+    }
+
+    setIsAuthenticated(true);
+    navigate("/");
   };
 
   return (

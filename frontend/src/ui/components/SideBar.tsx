@@ -5,6 +5,7 @@ import Trash from "../assets/trash.svg";
 import NewNote from "../assets/new-note.svg";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 function SideBar({
   notes,
@@ -14,6 +15,7 @@ function SideBar({
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const createNote = async () => {
@@ -40,6 +42,19 @@ function SideBar({
     } catch (err) {
       console.error(`Error deleting note (${noteID})`, err);
     }
+  };
+
+  const handleLogout = async () => {
+    const response: ResponseMessageType = await window.auth.logout();
+
+    const fetchNotes = async () => {
+      const data: Note[] = await window.db.getAllNotes();
+      setNotes(data);
+    };
+
+    fetchNotes();
+    setIsAuthenticated(false);
+    navigate("/");
   };
 
   return (
@@ -79,9 +94,15 @@ function SideBar({
           ))}
         </ul>
       </div>
-      <div className="login-button" onClick={() => navigate("/login")}>
-        Login
-      </div>
+      {isAuthenticated ? (
+        <div className="logout-button" onClick={handleLogout}>
+          Logout
+        </div>
+      ) : (
+        <div className="login-button" onClick={() => navigate("/login")}>
+          Login
+        </div>
+      )}
     </div>
   );
 }

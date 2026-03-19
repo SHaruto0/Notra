@@ -80,5 +80,10 @@ img.newNote {
 
 .login-button {
   cursor: pointer;
-  margin: 1rem 0rem;
+  margin: 1rem 0rem 5rem 0rem;
+}
+
+.logout-button {
+  cursor: pointer;
+  margin: 1rem 0rem 5rem 0rem;
 }
