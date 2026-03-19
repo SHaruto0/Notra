@@ -4,6 +4,7 @@ declare module "better-sqlite3";
 
 interface Note {
   id: string;
+  userId: string;
   title: string;
   content: string;
   updatedAt: number;
@@ -12,6 +13,17 @@ interface Note {
 interface AuthType {
   username: string;
   password: string;
+}
+
+interface User {
+  id: string;
+  username: string | null;
+  password: string | null;
+}
+
+interface ResponseMessageType {
+  success: boolean;
+  message: string;
 }
 
 type EventPayloadMapping = {
@@ -37,12 +49,17 @@ type EventPayloadMapping = {
 
   login: {
     args: [AuthType];
-    return: void;
+    return: ResponseMessageType;
   };
 
   register: {
     args: [AuthType];
-    return: boolean;
+    return: ResponseMessageType;
+  };
+
+  logout: {
+    args: [];
+    return: ResponseMessageType;
   };
 };
 
@@ -58,7 +75,8 @@ interface Window {
     deleteNote: (id: string) => Promise<Note>;
   };
   auth: {
-    login: (params: AuthType) => void;
-    register: (params: AuthType) => Promise<boolean>;
+    login: (params: AuthType) => Promise<ResponseMessageType>;
+    register: (params: AuthType) => Promise<ResponseMessageType>;
+    logout: () => Promise<ResponseMessageType>;
   };
 }
