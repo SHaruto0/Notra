@@ -2,18 +2,21 @@ import asyncHandler from "express-async-handler";
 import { supabase } from "../supabase-client.js";
 import type { Request, Response } from "express";
 
+// TODO: jwt check
+
 // @desc Get all notes
 // @route GET /notes
 // @access Private
 export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
-  const { data: notes, error } = await supabase.from("notes").select("*");
+  const { userId } = req.query;
+
+  const { data: notes, error } = await supabase
+    .from("notes")
+    .select("*")
+    .eq("userId", userId);
 
   if (error) {
     return res.status(500).json({ message: error.message });
-  }
-
-  if (!notes || notes.length === 0) {
-    return res.status(404).json({ message: "No notes found" });
   }
 
   res.status(200).json({ message: "Note acquired successfully", notes });
@@ -23,18 +26,23 @@ export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
 // @route POST /notes
 // @access Private
 export const createNote = asyncHandler(async (req: Request, res: Response) => {
-  const { id, title, content, updatedAt } = req.body;
+  const { id, userId, title, content, updatedAt } = req.body;
 
-  if (!id || title === undefined || content === undefined || !updatedAt) {
-    return res
-      .status(400)
-      .json({
-        message: "id, title, content, and updatedAt fields are required",
-      });
+  if (
+    !id ||
+    !userId ||
+    title === undefined ||
+    content === undefined ||
+    !updatedAt
+  ) {
+    return res.status(400).json({
+      message: "id, userId, title, content, and updatedAt fields are required",
+    });
   }
 
   const newNote: Note = {
     id,
+    userId,
     title,
     content,
     updatedAt,
