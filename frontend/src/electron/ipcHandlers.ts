@@ -7,7 +7,7 @@ import {
 } from "./services/notesService.js";
 import { SQLiteDatabase } from "./sqlite.js";
 import { ipcMainHandle } from "./util.js";
-import { login, register } from "./services/authService.js";
+import { login, logout, register } from "./services/authService.js";
 
 export function setUpSQLiteHandler(db: SQLiteDatabase) {
   ipcMainHandle("getAllNotes", async () => await getAllNotes());
@@ -19,4 +19,5 @@ export function setUpSQLiteHandler(db: SQLiteDatabase) {
 export function setUpAuthHandler() {
   ipcMainHandle("login", (params) => login(params));
   ipcMainHandle("register", (params) => register(params));
+  ipcMainHandle("logout", () => logout());
 }

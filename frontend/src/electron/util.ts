@@ -1,7 +1,7 @@
 import { ipcMain, WebFrameMain } from "electron";
 import { pathToFileURL } from "url";
 import { getUIPath } from "./pathResolver.js";
-import { exitCode } from "process";
+import { session } from "./session.js";
 
 export function isDev(): boolean {
   return process.env.NODE_ENV === "development";
@@ -43,12 +43,15 @@ export async function noteActions(method: string, payload?: any) {
     let response;
 
     if (method === "GET") {
-      response = await fetch("http://localhost:3000/notes", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
+      response = await fetch(
+        `http://localhost:3000/notes?userId=${session.userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
     } else {
       response = await fetch("http://localhost:3000/notes", {
         method: method,
@@ -71,5 +74,21 @@ export async function noteActions(method: string, payload?: any) {
   } catch (err) {
     console.error(err);
     return undefined;
+  }
+}
+
+export async function isOnline(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    await fetch("http://localhost:3000/health", {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+    return true;
+  } catch {
+    return false;
   }
 }

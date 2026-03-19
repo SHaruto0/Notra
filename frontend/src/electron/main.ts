@@ -5,6 +5,7 @@ import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
 import { db, SQLiteDatabase } from "./sqlite.js";
 import { setUpAuthHandler, setUpSQLiteHandler } from "./ipcHandlers.js";
+import { session } from "./session.js";
 
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
@@ -20,6 +21,8 @@ app.on("ready", () => {
 
   setUpSQLiteHandler(db);
   setUpAuthHandler();
+
+  console.log(session.userId);
 });
 
 app.on("window-all-closed", () => {

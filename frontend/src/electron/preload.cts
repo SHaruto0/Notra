@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("db", {
 contextBridge.exposeInMainWorld("auth", {
   login: (params) => ipcInvoke("login", params),
   register: (params) => ipcInvoke("register", params),
+  logout: () => ipcInvoke("logout"),
 } satisfies Window["auth"]);
 
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
