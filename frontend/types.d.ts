@@ -7,7 +7,7 @@ interface Note {
   userId: string;
   title: string;
   content: string;
-  updatedAt: number;
+  updatedAt: string;
 }
 
 interface AuthType {

@@ -66,7 +66,7 @@ export class SQLiteDatabase {
       userId: session.userId as string,
       title: "",
       content: "",
-      updatedAt: Date.now(),
+      updatedAt: new Date().toISOString(),
     };
     const insert = this.db.prepare(
       "INSERT INTO notes (id, userId, updatedAt) VALUES (?, ?, ?)",
@@ -91,7 +91,7 @@ export class SQLiteDatabase {
       userId: session.userId as string,
       title,
       content,
-      updatedAt: Date.now(),
+      updatedAt: new Date().toISOString(),
     };
     const update = this.db.prepare(
       "UPDATE notes SET title = ?, content = ?, updatedAt = ? WHERE id = ?",
