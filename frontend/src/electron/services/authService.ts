@@ -1,7 +1,9 @@
-import { net } from "electron";
+import fs from "fs";
+import path from "path";
 import argon2 from "argon2";
+import { safeStorage, app } from "electron";
 
-import { session } from "../session.js";
+import { clearSession, session } from "../session.js";
 import { db } from "../sqlite.js";
 import { isOnline } from "../util.js";
 
@@ -35,34 +37,32 @@ async function verifyPassword(
   }
 }
 
+const tokenPath = (key: string) =>
+  path.join(app.getPath("userData"), `${key}.enc`);
+
+export function saveSecret(key: string, value: string) {
+  const encrypted = safeStorage.encryptString(value);
+  fs.writeFileSync(tokenPath(key), encrypted);
+}
+
+export function getSecret(key: string): string | null {
+  try {
+    const encrypted = fs.readFileSync(tokenPath(key));
+    return safeStorage.decryptString(encrypted);
+  } catch {
+    return null;
+  }
+}
+
+export function deleteSecret(key: string) {
+  try {
+    fs.unlinkSync(tokenPath(key));
+  } catch {
+    /* already gone */
+  }
+}
+
 export async function login(params: AuthType): Promise<ResponseMessageType> {
-  const user: User | undefined = db.getUser(params.username);
-  if (!user) {
-    const response: ResponseMessageType = {
-      success: false,
-      message: "Incorrect Username or Password",
-    };
-    return response;
-  }
-
-  const isValid = await verifyPassword(
-    params.password,
-    user.password as string,
-  );
-
-  if (isValid) {
-    session.userId = user.id;
-    session.username = params.username;
-    session.isLoggedIn = true;
-
-    const response: ResponseMessageType = {
-      success: true,
-      message: "Log in successful",
-    };
-
-    return response;
-  }
-
   const online = await isOnline();
   if (online) {
     const loginOnline = await fetch("http://localhost:3000/auth/login", {
@@ -84,9 +84,17 @@ export async function login(params: AuthType): Promise<ResponseMessageType> {
       return response;
     }
 
-    const data = await loginOnline.json();
+    const { data: returnedData } = await loginOnline.json();
 
-    const userId = db.insertUser(data.data);
+    saveSecret("accessToken", returnedData.accessToken);
+    saveSecret("refreshToken", returnedData.refreshToken);
+
+    const hashedPassword = await hashPassword(params.password);
+    const userId = db.insertUser({
+      id: returnedData.id,
+      username: returnedData.username,
+      password: hashedPassword,
+    });
 
     session.userId = userId;
     session.username = params.username;
@@ -99,9 +107,36 @@ export async function login(params: AuthType): Promise<ResponseMessageType> {
     return response;
   }
 
+  const user: User | undefined = db.getUser(params.username);
+  if (!user) {
+    const response: ResponseMessageType = {
+      success: false,
+      message:
+        "No offline account found. Connect to the internet to log in for the first time.",
+    };
+    return response;
+  }
+
+  const isValid = await verifyPassword(
+    params.password,
+    user.password as string,
+  );
+
+  if (!isValid) {
+    const response: ResponseMessageType = {
+      success: false,
+      message: "Incorrect Username or Password",
+    };
+    return response;
+  }
+
+  session.userId = user.id;
+  session.username = params.username;
+  session.isLoggedIn = true;
+
   const response: ResponseMessageType = {
-    success: false,
-    message: "Incorrect Username or Password",
+    success: true,
+    message: "Log in successful",
   };
   return response;
 }
@@ -111,6 +146,24 @@ export async function logout(): Promise<ResponseMessageType> {
     session.isLoggedIn = false;
     session.userId = db.getOrCreateUser();
     session.username = null;
+
+    const refreshToken = getSecret("refreshToken");
+
+    if (refreshToken) {
+      try {
+        await fetch("http://localhost:3000/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+        });
+      } catch {
+        // server unreachable — still log out locally
+      }
+    }
+
+    deleteSecret("accessToken");
+    deleteSecret("refreshToken");
+    clearSession();
 
     const response: ResponseMessageType = {
       success: true,
@@ -150,17 +203,20 @@ export async function register(params: AuthType): Promise<ResponseMessageType> {
       },
     );
 
-    const createdUserData = await createUserResponse.json();
-
     if (!createUserResponse.ok) {
       const response: ResponseMessageType = {
-        success: session.isLoggedIn,
+        success: false,
         message: "User registration failed",
       };
       return response;
     }
 
+    const { data: returnedData } = await createUserResponse.json();
+
     db.registerUser({ username: params.username, password: hashedPassword });
+
+    saveSecret("accessToken", returnedData.accessToken);
+    saveSecret("refreshToken", returnedData.refreshToken);
 
     // TODO: try to make an account
     // return jwt stuff. ws
