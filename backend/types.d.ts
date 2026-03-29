@@ -6,10 +6,10 @@ declare module "express-async-handler" {
 
 interface Note {
   id: string;
-  userId: string;
+  user_id: string;
   title: string;
   content: string;
-  updatedAt: number;
+  updated_at: string;
 }
 
 interface User {

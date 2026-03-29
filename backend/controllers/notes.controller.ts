@@ -8,12 +8,12 @@ import type { Request, Response } from "express";
 // @route GET /notes
 // @access Private
 export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
-  const { userId } = req.query;
+  const { user_id } = req.query;
 
   const { data: notes, error } = await supabase
     .from("notes")
     .select("*")
-    .eq("userId", userId);
+    .eq("user_id", user_id);
 
   if (error) {
     return res.status(500).json({ message: error.message });
@@ -26,26 +26,27 @@ export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
 // @route POST /notes
 // @access Private
 export const createNote = asyncHandler(async (req: Request, res: Response) => {
-  const { id, userId, title, content, updatedAt } = req.body;
+  const { id, user_id, title, content, updated_at } = req.body;
 
   if (
     !id ||
-    !userId ||
+    !user_id ||
     title === undefined ||
     content === undefined ||
-    !updatedAt
+    !updated_at
   ) {
     return res.status(400).json({
-      message: "id, userId, title, content, and updatedAt fields are required",
+      message:
+        "id, user_id, title, content, and updated_at fields are required",
     });
   }
 
   const newNote: Note = {
     id,
-    userId,
+    user_id,
     title,
     content,
-    updatedAt,
+    updated_at,
   };
   const { data: note, error } = await supabase
     .from("notes")
@@ -64,17 +65,17 @@ export const createNote = asyncHandler(async (req: Request, res: Response) => {
 // @route PATCH /notes
 // @access Private
 export const updateNote = asyncHandler(async (req: Request, res: Response) => {
-  const { id, title, content, updatedAt } = req.body;
+  const { id, title, content, updated_at } = req.body;
 
-  if (!id || title === undefined || content === undefined || !updatedAt) {
+  if (!id || title === undefined || content === undefined || !updated_at) {
     return res.status(400).json({
-      message: "id, title, content, and updatedAt fields are required",
+      message: "id, title, content, and updated_at fields are required",
     });
   }
 
   const { data: note, error } = await supabase
     .from("notes")
-    .update({ title, content, updatedAt })
+    .update({ title, content, updated_at })
     .eq("id", id)
     .select()
     .single();
