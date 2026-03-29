@@ -90,14 +90,14 @@ export async function login(params: AuthType): Promise<ResponseMessageType> {
     saveSecret("refreshToken", returnedData.refreshToken);
 
     const hashedPassword = await hashPassword(params.password);
-    const userId = db.insertUser({
+    const user_id = db.insertUser({
       id: returnedData.id,
       username: returnedData.username,
       password: hashedPassword,
     });
 
-    session.userId = userId;
-    session.username = params.username;
+    session.user_id = returnedData.id;
+    session.username = returnedData.username;
     session.isLoggedIn = true;
 
     const response: ResponseMessageType = {
@@ -130,8 +130,8 @@ export async function login(params: AuthType): Promise<ResponseMessageType> {
     return response;
   }
 
-  session.userId = user.id;
-  session.username = params.username;
+  session.user_id = user.id;
+  session.username = user.username;
   session.isLoggedIn = true;
 
   const response: ResponseMessageType = {
@@ -144,7 +144,7 @@ export async function login(params: AuthType): Promise<ResponseMessageType> {
 export async function logout(): Promise<ResponseMessageType> {
   if (session.isLoggedIn) {
     session.isLoggedIn = false;
-    session.userId = db.getOrCreateUser();
+    session.user_id = db.getOrCreateUser();
     session.username = null;
 
     const refreshToken = getSecret("refreshToken");
@@ -164,6 +164,7 @@ export async function logout(): Promise<ResponseMessageType> {
     deleteSecret("accessToken");
     deleteSecret("refreshToken");
     clearSession();
+    console.log("sesion", session);
 
     const response: ResponseMessageType = {
       success: true,
@@ -188,7 +189,7 @@ export async function register(params: AuthType): Promise<ResponseMessageType> {
     const hashedPassword = await hashPassword(params.password);
 
     const userData: User = {
-      id: session.userId as string,
+      id: session.user_id as string,
       username: params.username,
       password: hashedPassword,
     };
@@ -221,6 +222,7 @@ export async function register(params: AuthType): Promise<ResponseMessageType> {
     // TODO: try to make an account
     // return jwt stuff. ws
 
+    session.username = returnedData.username;
     session.isLoggedIn = true;
 
     const response: ResponseMessageType = {

@@ -4,10 +4,10 @@ declare module "better-sqlite3";
 
 interface Note {
   id: string;
-  userId: string;
+  user_id: string;
   title: string;
   content: string;
-  updatedAt: string;
+  updated_at: string;
 }
 
 interface AuthType {

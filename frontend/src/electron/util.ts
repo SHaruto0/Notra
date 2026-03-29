@@ -44,7 +44,7 @@ export async function noteActions(method: string, payload?: any) {
 
     if (method === "GET") {
       response = await fetch(
-        `http://localhost:3000/notes?userId=${session.userId}`,
+        `http://localhost:3000/notes?user_id=${session.user_id}`,
         {
           method: "GET",
           headers: {

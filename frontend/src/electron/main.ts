@@ -22,7 +22,7 @@ app.on("ready", () => {
   setUpSQLiteHandler(db);
   setUpAuthHandler();
 
-  console.log(session.userId);
+  console.log(session.user_id);
 });
 
 app.on("window-all-closed", () => {

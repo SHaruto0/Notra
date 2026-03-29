@@ -30,9 +30,9 @@ export const getAllNotes = async (): Promise<Note[]> => {
       } else if (!local && remote) {
         db.setNote(remote);
       } else {
-        if (local!.updatedAt > remote!.updatedAt) {
+        if (local!.updated_at > remote!.updated_at) {
           await noteActions("PATCH", local);
-        } else if (remote!.updatedAt > local!.updatedAt) {
+        } else if (remote!.updated_at > local!.updated_at) {
           db.setNote(remote!);
         }
       }

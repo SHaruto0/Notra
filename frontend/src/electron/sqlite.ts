@@ -29,25 +29,25 @@ export class SQLiteDatabase {
       .prepare(
         `CREATE TABLE IF NOT EXISTS notes (
         id TEXT PRIMARY KEY,
-        userId TEXT NOT NULL,
+        user_id TEXT NOT NULL,
         title TEXT,
         content TEXT,
-        updatedAt INTEGER NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE)`,
+        updated_at INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)`,
       )
       .run();
 
-    if (!session.userId) {
-      const userId: string = this.getOrCreateUser();
-      session.userId = userId;
+    if (!session.user_id) {
+      const user_id: string = this.getOrCreateUser();
+      session.user_id = user_id;
     }
   }
 
   getAllNotes(): Note[] {
     const getNotes = this.db.prepare(
-      "SELECT * FROM notes WHERE userId=? ORDER BY updatedAt DESC",
+      "SELECT * FROM notes WHERE user_id=? ORDER BY updated_at DESC",
     );
-    const notes = getNotes.all(session.userId) as Note[];
+    const notes = getNotes.all(session.user_id) as Note[];
 
     return notes;
   }
@@ -63,16 +63,16 @@ export class SQLiteDatabase {
   createNote(): Note {
     const note: Note = {
       id: uuidv4(),
-      userId: session.userId as string,
+      user_id: session.user_id as string,
       title: "",
       content: "",
-      updatedAt: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     const insert = this.db.prepare(
-      "INSERT INTO notes (id, userId, updatedAt) VALUES (?, ?, ?)",
+      "INSERT INTO notes (id, user_id, updated_at) VALUES (?, ?, ?)",
     );
 
-    insert.run(note.id, session.userId, note.updatedAt);
+    insert.run(note.id, session.user_id, note.updated_at);
 
     return note;
   }
@@ -88,16 +88,16 @@ export class SQLiteDatabase {
   }): Note {
     const note: Note = {
       id,
-      userId: session.userId as string,
+      user_id: session.user_id as string,
       title,
       content,
-      updatedAt: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     const update = this.db.prepare(
-      "UPDATE notes SET title = ?, content = ?, updatedAt = ? WHERE id = ?",
+      "UPDATE notes SET title = ?, content = ?, updated_at = ? WHERE id = ?",
     );
 
-    update.run(note.title, note.content, note.updatedAt, note.id);
+    update.run(note.title, note.content, note.updated_at, note.id);
 
     return note;
   }
@@ -113,7 +113,7 @@ export class SQLiteDatabase {
     return note;
   }
 
-  setNote({ id, title, content, updatedAt }: Note): void {
+  setNote({ id, title, content, updated_at }: Note): void {
     const note: Note | undefined = this.getNote(id);
 
     if (note) {
@@ -121,19 +121,19 @@ export class SQLiteDatabase {
         !(
           note.title === title &&
           note.content === content &&
-          note.updatedAt === updatedAt
+          note.updated_at === updated_at
         )
       ) {
         const set = this.db.prepare(
-          "UPDATE notes SET title = ?, content = ?, updatedAt = ? WHERE id = ?",
+          "UPDATE notes SET title = ?, content = ?, updated_at = ? WHERE id = ?",
         );
-        set.run(title, content, updatedAt, id);
+        set.run(title, content, updated_at, id);
       }
     } else {
       const insert = this.db.prepare(
-        "INSERT INTO notes (id, userId, title, content, updatedAt) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO notes (id, user_id, title, content, updated_at) VALUES (?, ?, ?, ?, ?)",
       );
-      insert.run(id, session.userId, title, content, updatedAt);
+      insert.run(id, session.user_id, title, content, updated_at);
     }
   }
 
@@ -167,9 +167,9 @@ export class SQLiteDatabase {
       "UPDATE users SET username = ?, password = ? WHERE id = ?",
     );
 
-    setUser.run(username, password, session.userId);
+    setUser.run(username, password, session.user_id);
 
-    return { id: session.userId, username, password };
+    return { id: session.user_id, username, password };
   }
 
   getUser(username: string): User | undefined {
