@@ -183,6 +183,13 @@ export class SQLiteDatabase {
   }
 
   insertUser(params: User) {
+    const existingUser: User | undefined = this.getUser(
+      params.username as string,
+    );
+
+    if (existingUser) {
+      return params.id;
+    }
     const insertUser = this.db.prepare(
       "INSERT INTO users (id, username, password) VALUES (?, ?, ?)",
     );
