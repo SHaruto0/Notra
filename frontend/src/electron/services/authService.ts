@@ -163,8 +163,6 @@ export async function logout(): Promise<ResponseMessageType> {
 
     deleteSecret("accessToken");
     deleteSecret("refreshToken");
-    clearSession();
-    console.log("sesion", session);
 
     const response: ResponseMessageType = {
       success: true,

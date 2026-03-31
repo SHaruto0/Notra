@@ -2,6 +2,8 @@ import { ipcMain, WebFrameMain } from "electron";
 import { pathToFileURL } from "url";
 import { getUIPath } from "./pathResolver.js";
 import { session } from "./session.js";
+import { access } from "fs";
+import { getSecret } from "./services/authService.js";
 
 export function isDev(): boolean {
   return process.env.NODE_ENV === "development";
@@ -39,24 +41,28 @@ export async function noteActions(method: string, payload?: any) {
     return undefined;
   }
 
+  const accessToken = getSecret("accessToken");
+  if (!accessToken) {
+    return { success: false, message: "Not authenticated" };
+  }
+  // accessToken += "1";
+
   try {
     let response;
-
     if (method === "GET") {
-      response = await fetch(
-        `http://localhost:3000/notes?user_id=${session.user_id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      response = await fetch(`http://localhost:3000/notes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+      });
     } else {
       response = await fetch("http://localhost:3000/notes", {
         method: method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(payload),
       });
