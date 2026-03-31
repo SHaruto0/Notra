@@ -8,7 +8,7 @@ import type { Request, Response } from "express";
 // @route GET /notes
 // @access Private
 export const getAllNotes = asyncHandler(async (req: Request, res: Response) => {
-  const { user_id } = req.query;
+  const { id: user_id } = req.user;
 
   const { data: notes, error } = await supabase
     .from("notes")

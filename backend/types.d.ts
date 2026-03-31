@@ -17,3 +17,9 @@ interface User {
   username: string;
   password: string;
 }
+
+declare namespace Express {
+  interface Request {
+    user?: any;
+  }
+}

@@ -95,6 +95,8 @@ export const loginAccount = asyncHandler(
       return res.status(500).json({ message: "Failed to create session" });
     }
 
+    console.log(accessToken);
+
     return res.status(200).json({
       message: "Login success",
       data: {
