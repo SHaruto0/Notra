@@ -16,7 +16,7 @@ function Popup({
   return (
     <div className="popupOverlay">
       <div className="popupContainer">
-        <h2>{text}</h2>
+        <h3>{text}</h3>
         <div className="confirmationContainer">
           <button className="cancel" onClick={setNegative}>
             {negative}
