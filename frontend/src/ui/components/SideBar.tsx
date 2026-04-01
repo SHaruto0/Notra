@@ -1,11 +1,16 @@
-import type React from "react";
+import Popup from "./Popup";
+
 import "./SideBar.css";
+
 import Logo from "../assets/logo.svg";
 import Trash from "../assets/trash.svg";
 import NewNote from "../assets/new-note.svg";
-import { useNavigate } from "react-router-dom";
+
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
+import type React from "react";
 
 function SideBar({
   notes,
@@ -15,6 +20,9 @@ function SideBar({
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
+  const [requestedToDelete, setRequestedToDelete] = useState<string | null>(
+    null,
+  );
   const { isAuthenticated, setIsAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -87,7 +95,8 @@ function SideBar({
                 alt="Delete"
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteNote(note.id);
+                  console.log("hi");
+                  setRequestedToDelete(note.id);
                 }}
               />
             </li>
@@ -102,6 +111,18 @@ function SideBar({
         <div className="login-button" onClick={() => navigate("/login")}>
           Login
         </div>
+      )}
+      {requestedToDelete && (
+        <Popup
+          text="Are you sure you want to delete this note?"
+          negative="Cancel"
+          positive="Yes"
+          setNegative={() => setRequestedToDelete(null)}
+          setPositive={() => {
+            deleteNote(requestedToDelete);
+            setRequestedToDelete(null);
+          }}
+        />
       )}
     </div>
   );

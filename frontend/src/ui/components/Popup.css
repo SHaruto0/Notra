@@ -1,0 +1,43 @@
+.popupOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popupContainer {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.confirmationContainer {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancel,
+.confirm {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.cancel {
+  background-color: #e0e0e0;
+}
+
+.confirm {
+  background-color: #e05252;
+  color: white;
+}
