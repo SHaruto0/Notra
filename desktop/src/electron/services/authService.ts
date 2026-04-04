@@ -3,7 +3,7 @@ import path from "path";
 import argon2 from "argon2";
 import { safeStorage, app } from "electron";
 
-import { clearSession, session } from "../session.js";
+import { session } from "../session.js";
 import { db } from "../sqlite.js";
 import { isOnline } from "../util.js";
 

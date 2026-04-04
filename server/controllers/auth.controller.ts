@@ -2,7 +2,6 @@ import asyncHandler from "express-async-handler";
 import { supabase } from "../supabase-client.js";
 import type { Request, Response } from "express";
 
-import path from "path";
 import dotenv from "dotenv";
 import argon2 from "argon2";
 import { v4 as uuidv4 } from "uuid";
@@ -123,7 +122,7 @@ export const logoutAccount = asyncHandler(
       .eq("token", refreshToken);
 
     if (deleteError) {
-      return res.status(500).json({ message: "Error deleting refresh token" });
+      return res.status(400).json({ message: "Error deleting refresh token" });
     }
 
     return res.status(200).json({ message: "Logged out successfully" });
