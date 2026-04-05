@@ -6,7 +6,7 @@ import Logo from "../assets/logo.svg";
 import Trash from "../assets/trash.svg";
 import NewNote from "../assets/new-note.svg";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -52,18 +52,18 @@ function SideBar({
     }
   };
 
-  const handleLogout = async () => {
-    const response: ResponseMessageType = await window.auth.logout();
-
-    const fetchNotes = async () => {
-      const data: Note[] = await window.db.getAllNotes();
-      setNotes(data);
-    };
-
-    fetchNotes();
+  const handleLogout = useCallback(async () => {
+    await window.auth.logout();
+    const data: Note[] = await window.db.getAllNotes();
+    setNotes(data);
     setIsAuthenticated(false);
     navigate("/");
-  };
+  }, [navigate, setNotes, setIsAuthenticated]);
+
+  useEffect(() => {
+    const unsubscribe = window.auth.forceLogout(() => handleLogout());
+    return unsubscribe;
+  }, [handleLogout]);
 
   return (
     <div className="sideBar">

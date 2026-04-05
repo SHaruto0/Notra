@@ -1,11 +1,11 @@
 import fs from "fs";
 import path from "path";
 import argon2 from "argon2";
-import { safeStorage, app } from "electron";
+import { safeStorage, app, BrowserWindow } from "electron";
 
 import { session } from "../session.js";
 import { db } from "../sqlite.js";
-import { isOnline } from "../util.js";
+import { ipcWebContentsSend, isOnline } from "../util.js";
 
 const ARGON2_CONFIG: argon2.Options & { raw?: false } = {
   type: argon2.argon2id,
@@ -178,6 +178,13 @@ export async function logout(): Promise<ResponseMessageType> {
   }
 }
 
+export function sendForceLogout() {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    ipcWebContentsSend("forceLogout", win.webContents, undefined);
+  }
+}
+
 export async function register(params: AuthType): Promise<ResponseMessageType> {
   const online = await isOnline();
   if (online) {
@@ -203,9 +210,10 @@ export async function register(params: AuthType): Promise<ResponseMessageType> {
     );
 
     if (!createUserResponse.ok) {
+      const error = await createUserResponse.json();
       const response: ResponseMessageType = {
         success: false,
-        message: "User registration failed",
+        message: error.message ?? "Registration failed",
       };
       return response;
     }

@@ -61,7 +61,14 @@ type EventPayloadMapping = {
     args: [];
     return: ResponseMessageType;
   };
+
+  forceLogout: {
+    args: [];
+    return: void;
+  };
 };
+
+type UnsubscribeFunction = () => void;
 
 interface Window {
   db: {
@@ -78,5 +85,6 @@ interface Window {
     login: (params: AuthType) => Promise<ResponseMessageType>;
     register: (params: AuthType) => Promise<ResponseMessageType>;
     logout: () => Promise<ResponseMessageType>;
+    forceLogout: (callback: () => void) => UnsubscribeFunction;
   };
 }

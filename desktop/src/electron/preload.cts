@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld("auth", {
   login: (params) => ipcInvoke("login", params),
   register: (params) => ipcInvoke("register", params),
   logout: () => ipcInvoke("logout"),
+  forceLogout: (callback) => {
+    return ipcOn("forceLogout", () => callback());
+  },
 } satisfies Window["auth"]);
 
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
@@ -22,9 +25,13 @@ function ipcInvoke<Key extends keyof EventPayloadMapping>(
 
 function ipcOn<Key extends keyof EventPayloadMapping>(
   key: Key,
-  callback: (payload: EventPayloadMapping[Key]) => void,
+  callback: (payload: EventPayloadMapping[Key]["return"]) => void,
 ) {
-  ipcRenderer.on(key, (_: any, payload: EventPayloadMapping[Key]) =>
-    callback(payload),
-  );
+  const cb = (
+    _: Electron.IpcRendererEvent,
+    payload: EventPayloadMapping[Key]["return"],
+  ) => callback(payload);
+
+  ipcRenderer.on(key, cb);
+  return () => ipcRenderer.off(key, cb);
 }
