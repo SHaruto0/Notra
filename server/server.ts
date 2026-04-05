@@ -5,9 +5,10 @@ import errorHandler from "./middleware/errorHandler.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import noteRoutes from "./routes/notes.routes.js";
+import { scheduleTokenCleanup } from "./utils.js";
+import verifyToken from "./middleware/verifyJWT.js";
 import credentials from "./middleware/credentials.js";
 import { corsOptions } from "./config/corsOptions.js";
-import verifyToken from "./middleware/verifyJWT.js";
 
 const PORT = 3000;
 const app = express();
@@ -31,3 +32,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+scheduleTokenCleanup();
